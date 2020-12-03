@@ -1,0 +1,272 @@
+%-------------------------------------------------------------------%
+%
+% Konfigurasi dokumen LaTeX untuk laporan tesis IF ITB
+%
+% @author Petra Novandi
+% updated by Dionesius Agung (2020)
+%-------------------------------------------------------------------%
+%
+% Berkas asli berasal dari Steven Lolong
+%
+%-------------------------------------------------------------------%
+
+\usepackage[top=3cm,bottom=3cm,left=4cm,right=3cm,a4paper]{geometry}
+
+\usepackage[english]{babel}
+
+\renewcommand{\baselinestretch}{1.5}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  BIBLIOGRAPHY AND CITATION  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% use package biblatex
+\usepackage[backend=biber,
+            bibstyle=authoryear,
+            citestyle=authoryear,
+            sorting=nyt,
+            url=false,
+            maxcitenames=2,
+            maxnames=2,
+            dashed=false,
+            uniquename=init,
+            giveninits=true]{biblatex}
+\DeclareNameAlias{author}{family-given}
+
+% Translate bibliography strings ke bahasa indonesia
+%   (karena 'bahasa' belum di-support)
+\DefineBibliographyStrings{english}{%
+  bibliography = {Daftar Pustaka},
+  references = {Referensi},
+  and = {\&},
+  techreport = {Dok. teknis},
+  phdthesis = {Disertasi doktoral\adddot},
+  andothers = {dkk\adddot}
+}
+
+% Field berikut tidak ditulis di daftar pustaka
+\AtEveryBibitem{\clearfield{issn}}
+\AtEveryBibitem{\clearfield{isbn}}
+\AtEveryBibitem{\clearfield{month}}
+\AtEveryBibitem{\clearfield{doi}}
+
+% Format entri daftar pustaka
+
+%% Beri titik setelah judul
+\DeclareFieldFormat
+[article,inbook,incollection,inproceedings,
+patent,unpublished,misc]
+{title}{#1\isdot}
+
+%% Judul buku ditulis italic
+\DeclareFieldFormat
+[thesis]
+{title}{\emph{#1}\isdot}
+
+%% Hilangkan kata "Dalam:" di antara judul artikel dan judul jurnal
+\renewbibmacro{in:}{}
+
+%% Format penulisan volume dan nomor pada jurnal: vol(num) e.g. 5(1)
+\renewbibmacro*{volume+number+eid}{%
+	\printfield{volume}%
+	\printfield{number}%
+	\setunit{\addcomma\space}%
+	\printfield{eid}}
+\DeclareFieldFormat[article]{number}{\mkbibparens{#1}}
+
+% Format citation
+\renewcommand*{\nameyeardelim}{\addcomma\space}
+
+% Setting spasi di halaman daftar pustaka
+\setlength\bibitemsep{0.5\baselineskip}
+
+
+%%%%%%%%%%%%%%
+%  PACKAGES  %
+%%%%%%%%%%%%%%
+\usepackage[utf8]{inputenc}
+\usepackage{csquotes}
+\usepackage{bookmark}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{blindtext}
+\usepackage{sectsty}
+\usepackage{chngcntr}
+\usepackage{etoolbox}
+\usepackage{hyperref}       % Package untuk link di daftar isi.
+\usepackage{titlesec}       % Package Format judul
+\usepackage{parskip}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{ltablex}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table,xcdraw]{xcolor}
+
+
+%%%%%%%%%%%%%%$$%%%%%%%%%
+%  CHAPTER AND SECTION  %
+%%%%%%%%%%%%%%%%$$%%%%%%%
+% Format judul bab
+\chapterfont{\centering \large}
+\titleformat{\chapter}[display]
+  {\large\centering\bfseries}
+  {\chaptertitlename\ \thechapter}{0em}
+    {\large\bfseries\MakeUppercase}
+\titlespacing*{\chapter}
+	{0pt}
+	{-1.5\baselineskip}
+	{1.5\baselineskip}
+
+% Format judul section (dan sub(sub)section)
+\titleformat*{\section}{\bfseries\normalsize}
+\titleformat*{\subsection}{\bfseries\normalsize}
+\titleformat*{\subsubsection}{\bfseries\normalsize}
+\titlespacing*{\section}{0pt}{1ex}{0pt}
+\titlespacing*{\subsection}{0pt}{1ex}{0pt}
+\titlespacing*{\subsubsection}{0pt}{1ex}{0pt}
+
+% Kedalaman hierarki section (paling dalam subsubsection)
+\setcounter{secnumdepth}{3}
+
+\hbadness=99999
+\vbadness=99999
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  TABLE OF CONTENTS, LISTS OF FIGURES & TABLES  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[titles]{tocloft}
+% \usepackage[titletoc]{appendix}
+\usepackage{tocbibind}
+
+% Kedalaman hierarki maksimum ToC
+% (yang masuk ToC hanya sampai subsection: I.1.1.)
+\setcounter{tocdepth}{2}
+
+% Hilangkan gap antar-bab di ToC
+\setlength{\cftbeforechapskip}{0pt}
+
+% Tambah kata "BAB" sebelum nomor bab di daftar isi
+% TODO: still problematic when used with list of appendices (uncomment these 4 following lines to reproduce the problem)
+\renewcommand{\cftchappresnum}{BAB~} % BAB before number in ToC
+\newlength{\mylen} % a scratch length
+\settowidth{\mylen}{\bfseries\cftchappresnum\cftchapaftersnum} % extra space
+\addtolength{\cftchapnumwidth}{\mylen} % add the extra space
+
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+
+% Pisah daftar lampiran dari ToC
+%%%
+% \renewcommand{\appendixtocname}{Daftar Lampiran}
+
+% \makeatletter
+% \let\oldappendix\appendices
+
+% \renewcommand{\appendices}{%
+%   \clearpage
+%   % From now, everything goes to the app file and not to the toc
+%   \let\tf@toc\tf@app
+%   \addtocontents{app}{\protect\setcounter{tocdepth}{1}}
+%   \immediate\write\@auxout{%
+%     \string\let\string\tf@toc\string\tf@app^^J
+%   }
+%   \oldappendix
+% }%
+
+\newcommand{\listofappendices}{%
+  \begingroup
+  \renewcommand{\contentsname}{\appendixtocname}
+  \let\@oldstarttoc\@starttoc
+  \def\@starttoc##1{\@oldstarttoc{app}}
+  % Reusing the code for \tableofcontents with different
+  %   \contentsname and different file handle app
+  \tableofcontents
+  \endgroup
+}
+\makeatother
+%%%
+
+% Hilangkan gap antara entri gambar & tabel antarbab di daftar tabel 
+% dan daftar gambar (hanya terlihat kalau ada gambar/tabel di >1 bab)
+\newcommand*{\noaddvspace}{\renewcommand*{\addvspace}[1]{}}
+\addtocontents{lof}{\protect\noaddvspace}
+\addtocontents{lot}{\protect\noaddvspace}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  FLOATS: FIGURES, TABLES, ALGORITHMS  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Before:
+% ---
+% Counter untuk figure dan table.
+% \counterwithin{figure}{section}
+% \counterwithin{table}{section}
+% ---
+\renewcommand\dateenglish{%
+ \def\today{\number\day\space\ifcase\month\or
+    Januari\or Februari\or Maret\or April\or Mei\or Juni\or
+    Juli\or Agustus\or September\or Oktober\or November\or
+    Desember\fi
+    \space\number\year}}
+\def\thismonth{\ifcase\month\or
+Januari\or Februari\or Maret\or April\or Mei\or Juni\or
+Juli\or Agustus\or September\or Oktober\or November\or
+Desember\fi
+\space\number\year}
+
+\usepackage[labelsep=period,
+justification=justified,
+format=hang,
+figurename=Gambar,
+tablename=Tabel]{caption}
+\usepackage[labelformat=simple]{subcaption}
+%% Hack subfigure cross-ref agar pakai tanda kurung
+%%   e.g. Gambar II.2(a), bukan Gambar II.2a
+%% (method recommended in subcaption package documentation)
+\renewcommand\thesubfigure{(\alph{subfigure})}
+
+% Counter untuk gambar dan tabel
+\renewcommand*{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand*{\thetable}{\thechapter.\arabic{table}}
+
+% Jarak spasi antara float dengan teks utama
+\captionsetup[figure]{belowskip=-1em}
+% \captionsetup[subfigure]{belowskip=0pt}
+\setlength{\textfloatsep}{2\baselineskip}
+\setlength{\intextsep}{2\baselineskip}
+
+% Spasi single di environment table
+\AtBeginEnvironment{table}
+  {\renewcommand{\baselinestretch}{1.0}}
+
+% Avoid widow and orphan lines if possible
+\widowpenalty500
+\clubpenalty10000
+
+% Hyphenation penalty
+\hyphenpenalty=10000
+\tolerance=1
+\sloppy
+
+\usepackage[chapter]{algorithm}
+\usepackage{algpseudocode}
+% Rename "Algorithm" into "Algoritma"
+\makeatletter
+\renewcommand*{\ALG@name}{Algoritma}
+\newcommand{\algorithmname}{\ALG@name}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  MATHS AND EQUATIONS  %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+
+% Counter untuk equation
+\renewcommand*{\theequation}{\thechapter.\arabic{equation}}
+
+% Allow page breaks on long equations
+\allowdisplaybreaks[1-4]

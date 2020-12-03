@@ -1,0 +1,265 @@
+\chapter{PENDAHULUAN}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+Bab ini memaparkan latar belakang yang mendasari penulisan tugas akhir ini; rumusan masalah, tujuan, dan batasan tugas akhir secara formal; sampai metodologi pengerjaan tugas akhir ini.
+
+\section{Latar Belakang}
+
+Studi di bidang robotika merupakan salah satu bidang riset dalam lingkup intelijensi buatan yang memiliki aplikasi yang sangat luas dalam kehidupan manusia. Perkembangan robotika telah memiliki dampak yang sangat besar dalam perkembangan zaman, terutama di bidang industri manufaktur dimana robot memungkinkan pekerjaan kompleks untuk dilakukan dengan volume tinggi. Secara umum, robotika telah maupun sangat berpotensi untuk membantu menciptakan peralatan otomatis yang dapat mengerjakan pekerjaan kompleks dengan akurasi, kecepatan, ketahanan, maupun tingkat keamanan yang lebih tinggi dibandingkan dengan manusia di berbagai bidang lainnya, seperti industri pertahanan, pertambangan, sampai industri kesehatan.
+
+Dalam studi dan pengembangan robotika, peneliti mengkaji dan mempelajari bagaimana robot dapat direkayasa untuk menyelesaikan pekerjaan yang kompleks. Lingkup studi ini pun mencakup area yang luas, dari bagaimana robot dapat berinteraksi dengan manusia sampai bagaimana robot dapat berkoordinasi dengan banyak robot lainnya dalam menyelesaikan pekerjaannya. Sebagai sistem fisik siber, robot yang baik dapat melakukan persepsi dan membaca keadaan dunia dengan akurat, melakukan komputasi dan pengambilan keputusan tingkat tinggi, dan mengeksekusi suatu aksi dengan presisi.
+
+Salah satu inisiatif untuk membangkitkan perkembangan di bidang robotika ini adalah liga pertandingan Robocup, yang merupakan liga pertandingan terbuka untuk tim pengembang dari universitas maupun organisasi lainnya untuk merekayasa robot-robot yang dapat ditandingkan antar tim. Diantara cabang liga yang ditandingkan dalam Robocup adalah kompetisi robot sepak bola beroda, dimana peserta mengembangkan tim robot-robot beroda yang harus berkoordinasi untuk mencetak gol di gawang lawan. Misi awal RoboCup saat didirikan adalah untuk mengumpulkan tim robot yang cukup maju untuk dapat mengalahkan tim manusia juara Piala Dunia pada tahun 2050. Inisiatif serupa juga ada di Indonesia dalam bentuk Kontes Robot Indonesia yang diselenggarakan oleh Kementrian Pendidikan dan Kebudayaan antar tim dari universitas-universitas Indonesia.
+
+Dalam rekayasa robotika, pembuatan modul persepsi yang akurat merupakan hal yang penting karena bacaan \textit{world state} atau keadaan dunia merupakan masukan robot untuk melakukan pengambilan keputusan dan aksi, sehingga kualitas bacaan yang buruk dapat mengakibatkan pengambilan keputusan yang salah dan membahayakan keamanan robot itu sendiri, pengguna, maupun orang lain yang mungkin terlibat. Dalam konteks robot sepak bola beroda, pelacakan posisi robot sendiri (yang disebut juga lokalisasi), posisi robot lawan, maupun posisi bola merupakan informasi yang penting yang digunakan di banyak level dari pengambilan keputusan dan strategi tim sampai fungsionalitas dasar seperti mengejar, menggiring, mengoper, dan menembak bola.
+
+Selain pengolahan data dari sensor yang dimiliki robot sendiri, pertukaran dan pengolahan data dari robot yang lain juga merupakan hal yang penting dalam pembacaan \textit{world state} untuk mendapatkan bacaan yang selengkap dan seakurat mungkin. Dalam kontes robot sepak bola, tidak terbacanya posisi suatu objek merupakan hal yang sering terjadi karena batasan jarak efektif sensor maupun halangan visual dari objek lain. Keterlambatan atau kegagalan penyampaian informasi dari suatu robot ke robot lain yang juga dapat terjadi karena inferensi jaringan terutama di tempat kontes yang memiliki banyak penonton mengharuskan representasi informasi yang dipertukarkan dan algoritma pengolahan informasi pada robot harus didesain dengan baik.
+
+Telah terdapat banyak penelitian mengenai cara penggabungan bacaan keadaan dari banyak robot di dalam maupun luar konteks robot sepak bola beroda, dan ada beberapa studi modifikasi algoritma estimasi sensor dengan masukan data yang mungkin terlambat, akan tetapi masih sedikit penelitian yang membahas penggabungan bacaan keadaan dari banyak robot dalam konteks robot sepak bola beroda yang mempertimbangkan latensi di komunikasi.
+
+Dalam tugas akhir ini, penulis meneliti dan menguji coba modul persepsi pembacaan \textit{world state} di lingkungan robot yang dikembangkan DAGOZILLA yang merupakan tim pengembang robot sepak bola beroda di ITB yang hendak mengikuti Kontes Robotika Indonesia dan RoboCup sebagai tempat yang tepat untuk dapat mengaplikasikan dan menguji coba modul tersebut di berbagai kondisi nyata di lapangan.
+
+\section{Rumusan Masalah}
+
+Masalah yang hendak diselesaikan pada tugas akhir ini adalah mengenai desain dan pembuatan algoritma persepsi \textit{world state} menggunakan pertukaran informasi banyak robot dengan latensi komunikasi, spesifik pada kasus pengembangan robot sepak bola beroda di tim DAGOZILLA ITB. Untuk menyelesaikan permasalahan tersebut, masalah dibagi menjadi beberapa submasalah:
+
+\begin{enumerate}
+    \item Bagaimana memproses data dari sensor robot itu sendiri?
+    \item Bagaimana merepresentasi informasi yang akan dikirimkan ke robot lain?
+    \item Bagaimana memproses informasi yang diterima dari robot lain yang mungkin terlambat karena latensi komunikasi?
+\end{enumerate}
+
+\section{Tujuan}
+
+Tujuan dari tugas akhir ini terdiri dari beberapa poin:
+
+\begin{enumerate}
+    \item Mendapatkan algoritma yang baik untuk memproses data dari sensor robot sendiri
+    \item Mendapatkan representasi yang baik untuk informasi yang akan dikirimkan ke robot lain
+    \item Mendapatkan algoritma yang baik untuk memproses informasi dari robot lain yang mungkin terlambat
+    \item Melakukan implementasi algoritma di lingkungan robot tim DAGOZILLA
+\end{enumerate}
+
+\section{Batasan Masalah}
+
+Batasan masalah yang diambil untuk membatasi lingkup penelitian di tugas akhir ini adalah:
+
+\begin{enumerate}
+    \item \textit{World state} yang diestimasi mencakup posisi robot anggota tim dan lawan, dan posisi bola pada saat ini di lapangan
+    \item Eksperimen dilakukan dengan simulasi dengan validasi menggunakan uji coba di lapangan menggunakan robot tim DAGOZILLA
+    \item Jenis sensor yang digunakan dan frekuensi bacaan menyesuaikan konfigurasi robot tim DAGOZILLA
+    \item Pemodelan \textit{error} di bacaan sensor dan latensi komunikasi disesuaikan sedekat mungkin dengan kondisi nyata di robot tim DAGOZILLA
+\end{enumerate}
+
+\section{Metodologi}
+
+Pengerjaan tugas akhir dibagi menjadi beberapa tahapan:
+
+\begin{enumerate}
+    \item Pemodelan lingkungan dunia nyata
+
+          Pada tahap ini, dimodelkan lingkungan dunia nyata tempat robot bekerja, termasuk distribusi \textit{error} dari sensor dan distribusi latensi dari komunikasi.
+
+    \item Pembuatan lingkungan simulasi
+
+          Pada tahap ini, dibuat lingkungan simulasi yang dapat disambungkan dengan lingkungan kode robot untuk melakukan pengujicobaan dengan profil \textit{error} dan latensi sesuai yang sudah didapat sebelumnya.
+
+    \item Implementasi dan pengujicobaan algoritma pembanding
+
+          Pada tahap ini, diimplementasi dan diuji coba algoritma-algoritma dari referensi sebagai pembanding untuk algoritma hipotesis yang akan dikembangkan.
+
+    \item Desain dan implementasi algoritma hipotesis
+
+          Pada tahap ini, dilakukan desain dan implementasi algoritma hipotesis di lingkungan robot agar dapat diujicobakan.
+
+    \item Pengujicobaan dan analisis algoritma hipotesis
+
+          Pada tahap ini, dilakukan uji coba dan analisis dari performa algoritma hipotesis berdasarkan tujuan tugas akhir dan perbandingannya dengan algoritma pembanding.
+\end{enumerate}
+
+\section{Jadwal Pelaksanaan Tugas Akhir}
+
+Waktu pengerjaan tugas akhir ini dibagi berdasarkan diagram:
+
+\clearpage% Flush earlier floats (otherwise order might not be correct)
+\newgeometry{margin=2cm}
+\begin{landscape}% Landscape page
+
+    \begin{table}
+        \setlength\tabcolsep{0pt}
+        \caption{\textit{Gantt chart} Tugas Akhir 1} \label{tab:final-project-1}
+        \addtocounter{table}{-1}
+        \begin{tabularx}{\linewidth}{X *{18}{>{\centering\arraybackslash}m{15pt}}X}
+            \toprule
+            \multicolumn{1}{c}{}                                          &
+            \multicolumn{5}{c}{Sept.}                                     &
+            \multicolumn{4}{c}{Okt.}                                      &
+            \multicolumn{4}{c}{Nov.}                                      &
+            \multicolumn{5}{c}{Des.}                                      &
+            \multicolumn{1}{c}{}                                                                                                     \\ \cmidrule{2-19}
+
+            \multicolumn{1}{c}{\multirow{-2}{*}{Pekerjaan}}               &
+            \multicolumn{1}{c}{1}                                         &
+            \multicolumn{1}{c}{2}                                         &
+            \multicolumn{1}{c}{3}                                         &
+            \multicolumn{1}{c}{4}                                         &
+            \multicolumn{1}{c}{5}                                         &
+            \multicolumn{1}{c}{1}                                         &
+            \multicolumn{1}{c}{2}                                         &
+            \multicolumn{1}{c}{3}                                         &
+            \multicolumn{1}{c}{4}                                         &
+            \multicolumn{1}{c}{1}                                         &
+            \multicolumn{1}{c}{2}                                         &
+            \multicolumn{1}{c}{3}                                         &
+            \multicolumn{1}{c}{4}                                         &
+            \multicolumn{1}{c}{1}                                         &
+            \multicolumn{1}{c}{2}                                         &
+            \multicolumn{1}{c}{3}                                         &
+            \multicolumn{1}{c}{4}                                         &
+            \multicolumn{1}{c}{5}                                         &
+            \multicolumn{1}{c}{\multirow{-2}{*}{Luaran}}                                                                             \\ \midrule
+
+            \multicolumn{20}{l}{1. Studi Literatur}                                                                                  \\ \midrule
+            Pengajuan topik dan dosen pembimbing                          &   &   &  &
+            \cellcolor[HTML]{333333}                                      &   &   &  &   &   &   &   &   &   &  &   &   &  &   &     \\ \cmidrule{1-1}
+            Studi literatur referensi topik                               &   &   &  &   &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &   &  &   &   &   &   &   &   &  &   &                \\ \cmidrule{1-1}
+            Penulisan bab 2                                               &   &   &  &   &   &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &   &  &   &   &   &   &   &   &  &   &
+            \multirow{-3}{=}{Draft Bab 2 Studi Literatur}                                                                            \\ \midrule
+
+            \multicolumn{20}{l}{2. Lingkup, Rumusan Masalah, dan Metode}                                                             \\ \midrule
+            Penentuan lingkup dan metode                                  &   &   &  &   &   &   &   &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &   &  &   &   &   &   &   &
+            Draft Bab 1 Pendahuluan                                                                                                  \\ \midrule
+
+            \multicolumn{20}{l}{3. Pemodelan, Analisis, dan Perancangan}                                                             \\ \midrule
+            Pemodelan lingkungan dunia                                    &   &   &  &   &   &   &   &   &   &  &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &   &  &   &   &   &                                   \\ \cmidrule{1-1}
+            Pemilihan algoritma pembanding dan desain algoritma hipotesis &   &   &  &   &   &   &   &   &   &  &   &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &   &  &   &   &
+            \multirow{-2}{=}{Draft Bab 3 Analisis dan Perancangan}                                                                   \\ \cmidrule{1-1} \cmidrule{20-20}
+            Pengumpulan Buku Tugas Akhir 1                                &   &   &  &   &   &   &   &   &   &  &   &   &  &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &   &  &   &
+            Buku Tugas Akhir 1                                                                                                       \\ \cmidrule{1-1} \cmidrule{20-20}
+            Seminar Tugas Akhir 1                                         &   &   &  &   &   &   &   &   &   &  &   &   &  &   &   &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} }               &   &                                                      \\ \bottomrule
+        \end{tabularx}
+    \end{table}
+
+    \pagebreak
+
+    \begin{table}
+        \setlength\tabcolsep{0pt}
+        \caption{\textit{Gantt chart} Tugas Akhir 2} \label{tab:final-project-2}
+        \addtocounter{table}{-1}
+        \begin{tabularx}{\linewidth}{X *{26}{>{\centering\arraybackslash}m{12pt}}X}
+            \toprule
+            \multicolumn{1}{c}{}                            &
+            \multicolumn{4}{c}{Jan.}                        &
+            \multicolumn{4}{c}{Feb.}                        &
+            \multicolumn{5}{c}{Mar.}                        &
+            \multicolumn{4}{c}{Apr.}                        &
+            \multicolumn{4}{c}{Mei}                         &
+            \multicolumn{5}{c}{Juni}                        &
+            \multicolumn{1}{c}{}                                                                                                              \\ \cmidrule{2-27}
+
+
+            \multicolumn{1}{c}{\multirow{-2}{*}{Pekerjaan}} &
+            \multicolumn{1}{c}{1}                           &
+            \multicolumn{1}{c}{2}                           &
+            \multicolumn{1}{c}{3}                           &
+            \multicolumn{1}{c}{4}                           &
+            \multicolumn{1}{c}{1}                           &
+            \multicolumn{1}{c}{2}                           &
+            \multicolumn{1}{c}{3}                           &
+            \multicolumn{1}{c}{4}                           &
+            \multicolumn{1}{c}{1}                           &
+            \multicolumn{1}{c}{2}                           &
+            \multicolumn{1}{c}{3}                           &
+            \multicolumn{1}{c}{4}                           &
+            \multicolumn{1}{c}{5}                           &
+            \multicolumn{1}{c}{1}                           &
+            \multicolumn{1}{c}{2}                           &
+            \multicolumn{1}{c}{3}                           &
+            \multicolumn{1}{c}{4}                           &
+            \multicolumn{1}{c}{1}                           &
+            \multicolumn{1}{c}{2}                           &
+            \multicolumn{1}{c}{3}                           &
+            \multicolumn{1}{c}{4}                           &
+            \multicolumn{1}{c}{1}                           &
+            \multicolumn{1}{c}{2}                           &
+            \multicolumn{1}{c}{3}                           &
+            \multicolumn{1}{c}{4}                           &
+            \multicolumn{1}{c}{5}                           &
+            \multicolumn{1}{c}{\multirow{-2}{*}{Luaran}}                                                                                      \\ \midrule
+
+            \multicolumn{28}{l}{4. Implementasi dan Pengujian}                                                                                \\ \midrule
+            Implementasi lingkungan simulasi                &   &  &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}{\color[HTML]{333333} } &   &  &   &  &   &  &  &   &   &   &   &   &  &  &   &   &   &   &   &  &        \\ \cmidrule{1-1}
+            Implementasi algoritma pembanding               &   &  &   &  &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &   &  &  &   &   &   &   &   &  &  &   &   &                       \\ \cmidrule{1-1}
+            Implementasi algoritma hipotesis                &   &  &   &  &   &  &  &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &   &  &  &   &   &   &   &                                         \\ \cmidrule{1-1}
+            Pengujicobaan kinerja algoritma                 &   &  &   &  &   &  &  &   &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &   &  &  &   &   &   &
+            \multirow{-4}{*}{Hasil pengujian algoritma}                                                                                       \\ \midrule
+
+            \multicolumn{28}{l}{5. Analisis dan Evaluasi}                                                                                     \\ \midrule
+            Analisis kinerja algoritma                      &   &  &   &  &   &  &  &   &   &   &   &   &  &  &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &   &  &  &   &   &
+            Draft Bab 4 Evaluasi dan Pembahasan                                                                                               \\ \cmidrule{1-1} \cmidrule{28-28}
+            Evaluasi tugas akhir                            &   &  &   &  &   &  &  &   &   &   &   &   &  &  &   &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &   &  &  &   &   &
+            Draft Bab 5 Simpulan                                                                                                              \\ \cmidrule{1-1} \cmidrule{28-28}
+            Seminar Tugas Akhir 2                           &   &  &   &  &   &  &  &   &   &   &   &   &  &  &   &   &   &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &   &  &  &   &
+            Buku Tugas Akhir                                                                                                                  \\ \cmidrule{1-1} \cmidrule{28-28}
+            Validasi tugas akhir                            &   &  &   &  &   &  &  &   &   &   &   &   &  &  &   &   &   &   &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &   &  &                                                                   \\ \cmidrule{1-1}
+            Sidang Tugas Akhir                              &   &  &   &  &   &  &  &   &   &   &   &   &  &  &   &   &   &   &   &  &   &  &
+            \cellcolor[HTML]{333333}                        &
+            \cellcolor[HTML]{333333}                        &   &  &
+            \multirow{-2}{*}{Buku Tugas Akhir Final}                                                                                          \\ \bottomrule
+        \end{tabularx}
+    \end{table}
+
+\end{landscape}
+\clearpage% Flush page
+\restoregeometry
