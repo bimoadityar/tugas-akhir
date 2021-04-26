@@ -32,7 +32,7 @@ dengan kasus spesial dimana $\mu = 0$ dan $\sigma^2 = 1$ disebut juga distribusi
 
 Distribusi Gaussian banyak dipelajari karena beberapa alasan. Salah satu alasan adalah karena distribusi ini memiliki banyak properti yang membuatnya mudah dimanipulasi dan digunakan, diantaranya adalah fungsi distribusi penjumlahan variabel-variabel acak independen berdistribusi Gaussian, maupun perkalian dan konvolusi fungsi Gaussian juga merupakan fungsi Gaussian. Alasan lainnya adalah diobservasi juga berbagai variabel acak di berbagai pengujian ilmiah yang ternyata memiliki distribusi yang hampir mirip dengan Gaussian. Selain itu juga, terbukti bahwa berdasarkan Teorema Limit Pusat, rata-rata dari banyak variabel acak distribusi identik independen akan mendekati distribusi Gaussian. \citep{degroot2012}
 
-Disebabkan oleh alasan-alasan tersebut, praktisnya distibusi Gaussian banyak digunakan untuk memodelkan berbagai variabel acak di dunia nyata, seperti distribusi sampel dari populasi yang sangat besar maupun distribusi error pada suatu pengukuran atau kontrol sering diasumsikan memiliki distribusi Gaussian.
+Disebabkan oleh alasan-alasan tersebut, praktisnya distibusi Gaussian banyak digunakan untuk memodelkan berbagai variabel acak di dunia nyata, seperti distribusi sampel dari populasi yang sangat besar maupun distribusi \textit{error}pada suatu pengukuran atau kontrol sering diasumsikan memiliki distribusi Gaussian.
 
 Distribusi Gaussian memiliki generalisasi ke dalam vektor acak yaitu kumpulan variabel acak yang direpresentasikan dalam bentuk vektor. Dengan parameter vektor rata-rata $\mu$ dan matriks kovarian $\Sigma$ yang bersifat simetrik dan positif semidefinit, didefinisikan fungsi densitas
 \begin{align}
@@ -42,7 +42,7 @@ dimana masing-masing komponen $X_i$ sendiri memiliki distribusi Gaussian dengan 
 
 \section{Estimasi Keadaan Probabilistik}
 
-Perangkat lunak di robot atau sistem lainnya yang membaca \textit{world state} nyata menggunakan sensor, dan mungkin berinteraksi dengannya menggunakan aktuator, mempunyai kebutuhan untuk menentukan keadaan tersebut dari bacaan sensor. Secara umum, digunakan model matematika yang bertujuan untuk mentranslasi data pengukuran menjadi model \textit{world state}. Seiring berjalannya waktu, penggunaan estimasi \textit{world state} menggunakan model probabilistik menjadi lebih populer dibandingkan model perhitungan yang deterministik. Dengan memodelkan \textit{world state} yang diketahui menjadi suatu distribusi peluang, hasil pengukuran \textit{world state} menjadi lebih tahan terhadap efek error pada data pengukuran. \citep{thrun2010}
+Perangkat lunak di robot atau sistem lainnya yang membaca \textit{world state} nyata menggunakan sensor, dan mungkin berinteraksi dengannya menggunakan aktuator, mempunyai kebutuhan untuk menentukan keadaan tersebut dari bacaan sensor. Secara umum, digunakan model matematika yang bertujuan untuk mentranslasi data pengukuran menjadi model \textit{world state}. Seiring berjalannya waktu, penggunaan estimasi \textit{world state} menggunakan model probabilistik menjadi lebih populer dibandingkan model perhitungan yang deterministik. Dengan memodelkan \textit{world state} yang diketahui menjadi suatu distribusi peluang, hasil pengukuran \textit{world state} menjadi lebih tahan terhadap efek \textit{error}pada data pengukuran. \citep{thrun2010}
 
 \subsection{Pemodelan Keadaan}
 
@@ -103,11 +103,11 @@ Selain itu, karena nilai dari $bel(x_t)$ merupakan distribusi peluang, dalam apl
 
 Pada penapis Kalman atau \textit{Kalman Filter} (\textit{KF}), distribusi dari $bel(x_t)$ dan $\overline{bel}(x_t)$ diasumsikan memiliki distribusi Gaussian dengan parameter $\mu$ dan $\sigma^2$ yang dicari pada setiap iterasi algoritmanya. Agar penapis Bayes Gaussian bekerja, distribusi peluang transisi keadaan dan peluang pengukuran harus memiliki restriksi tambahan.
 
-Pada variasi penapis Kalman yang paling sederhana, direstriksi bahwa (1) vektor acak $x_t$ merupakan kombinasi linear dari $x_{t-1}, u_t,$ dan faktor error $\epsilon_t$
+Pada variasi penapis Kalman yang paling sederhana, direstriksi bahwa (1) vektor acak $x_t$ merupakan kombinasi linear dari $x_{t-1}, u_t,$ dan faktor \textit{error}$\epsilon_t$
 \begin{align}
     x_t = A_t x_{t-1} + B_t u_t + \epsilon_t \,
 \end{align}
-untuk $x_t$ berdimensi $n$, $u_t$ berdimensi $m$, $A_t$ matriks berdimensi $n \times n$, dan $B_t$ berdimensi $n \times m$, dan $\epsilon_t$ vektor acak Gaussian dengan rata-rata nol dan kovariansi $R_t$; (2) $z_t$ merupakan kombinasi linear dari $x_t$ dan faktor error $\delta_t$
+untuk $x_t$ berdimensi $n$, $u_t$ berdimensi $m$, $A_t$ matriks berdimensi $n \times n$, dan $B_t$ berdimensi $n \times m$, dan $\epsilon_t$ vektor acak Gaussian dengan rata-rata nol dan kovariansi $R_t$; (2) $z_t$ merupakan kombinasi linear dari $x_t$ dan faktor \textit{error}$\delta_t$
 \begin{align}
     z_t = C_t x_t + \delta_t
 \end{align}
@@ -194,7 +194,7 @@ Pada penapis partikel, distribusi peluang nilai dari $bel(x_t)$ direpresentasika
 
 Algoritma penapis partikel digambarkan di algoritma \ref{alg:particle-filter}. Baris empat merupakan tahap prediksi dimana untuk setiap partikel sebelumnya dibangkitkan partikel sekarang menggunakan nilai kontrol. Partikel tersebut disimpan di himpunan $\overline{\chi}_t$ beserta evaluasi peluangnya berdasarkan pengukuran. Agar suatu partikel dengan peluang yang lebih besar memiliki lebih banyak representasi dalam himpunan $\chi_t$, dilakukan sampling ulang terhadap $x_t$ dengan peluang sebanding dengan hasil evaluasinya, pada baris delapan sampai sebelas.
 
-Secara umum, penapis partikel ini merupakan pilihan paling populer dalam melakukan estimasi terhadap keadaan nonGaussian, karena komputasinya yang mengandalkan sampling relatif lebih mudah dan tingkat akurasi terhadap performa algoritma dapat diatur dengan mudah melalui banyak partikel yang digunakan. Ada beberapa kondisi yang mengakibatkan ketidakakuratan pada algoritma ini, seperti saat terjadi konvergensi partikel di nilai yang salah, sehingga peningkatan pada algoritma ini diantaranya adalah dengan menambahkan faktor error tambahan pada tahap prediksi dan/atau memasukkan partikel baru di luar $\overline{\chi}_t$ ke dalam $\chi_t$.
+Secara umum, penapis partikel ini merupakan pilihan paling populer dalam melakukan estimasi terhadap keadaan nonGaussian, karena komputasinya yang mengandalkan sampling relatif lebih mudah dan tingkat akurasi terhadap kinerja algoritma dapat diatur dengan mudah melalui banyak partikel yang digunakan. Ada beberapa kondisi yang mengakibatkan ketidakakuratan pada algoritma ini, seperti saat terjadi konvergensi partikel di nilai yang salah, sehingga peningkatan pada algoritma ini diantaranya adalah dengan menambahkan faktor \textit{error}tambahan pada tahap prediksi dan/atau memasukkan partikel baru di luar $\overline{\chi}_t$ ke dalam $\chi_t$.
 
 Penggunaan populer dari algoritma ini adalah pada algoritma \textit{Monte Carlo localization} (\textit{MCL}) dimana penapis partikel digunakan untuk kasus lokalisasi robot menggunakan data kontrol dari kontrol kecepatan atau data perpindahan dari sensor dan data pengukuran dari sensor peraba jarak atau kamera. Algoritma \textit{Augmented Monte Carlo localization} (\textit{AMCL}) merupakan modifikasi algoritma \textit{MCL} biasa yang ditambahkan pemasukkan partikel baru apabila hasil evaluasi partikel-partikel yang ada sekarang lebih buruk dari sebelumnya.
 
@@ -215,4 +215,3 @@ Masing-masing robot \citet{pahliani2006} melakukan lokalisasi menggunakan \texti
 \citet{chang2016} menggunakan \textit{Extended Kalman Filter} untuk melacak sistem seluruh robot dan objek. \textit{Update} dilakukan untuk masing-masing robot, sedangkan pengukuran diintegrasi berdasarkan robot apa saja yang terlibat dalam pengukuran tersebut. Teknik \textit{multiple hypothesis tracking} digunakan untuk mengasosiasikan data pengukuran dengan posisi objek di hipotesis.
 
 \citet{ahmad2017} menggunakan penapis partikel yang mencakup posisi semua robot ditambah objek yang diobservasi. Masing-masing bagian partikel dari robot digerakan dan dievaluasi secara terpisah, dan diurutkan ulang sehingga bagian partikel dengan evaluasi tinggi dari suatu robot dipasangkan dengan bagian partikel robot lain dengan evaluasi yang tinggi juga. Algoritma ini lalu memasangkan partikel bagian dari objek yang memaksimalkan evaluasi partikel bagian tersebut dengan partikel bagian robot dengan evaluasi tinggi juga. Teknik ini menyelesaikan masalah defisiensi partikel pada penapis partikel tanpa harus menambahkan banyak partikel secara eksponensial.
-
