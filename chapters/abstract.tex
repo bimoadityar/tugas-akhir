@@ -18,11 +18,13 @@
 
 \begin{spacing}{1.0}
 
-	\blindtext
+	Dalam bidang robotika, pengembangan algoritma pengolahan data mentah dari sensor yang akurat merupakan hal yang penting agar robot dapat mengambil keputusan dan melakukan kontrol terhadap aktuator dengan akurat sehingga robot dapat bekerja dengan efisien dan aman. Pada konteks kontes robot sepak bola beroda, beberapa robot dalam tim dapat berkomunikasi untuk mendapatkan estimasi \textit{world state} yang seakurat mungkin. Akan tetapi, keadaan di tempat kontes memungkinkan adanya gangguan komunikasi berupa latensi dan hilangnya pesan karena interferensi jaringan.
 
-	\blindtext
+	Pada tugas akhir ini telah dikembangkan suatu algoritma estimasi \textit{world state} yang dapat memberikan hasil yang akurat pada konteks kontes robot sepak bola beroda bahkan dalam keadaan latensi komunikasi. Algoritma dikembangkan dari algoritma penapis Bayes berupa penapis Kalman dan penapis partikel dengan modifikasi untuk menangani data yang terlambat karena latensi.
 
-	Kata kunci: \LaTeX, tugas akhir, template, teknik informatika
+	Berdasarkan hasil pengujian menggunakan simulasi, didapatkan bahwa algoritma estimasi yang menggunakan AMCL berbasis partikel berisi posisi dan kecepatan untuk lokalisasi, penapis partikel dengan modifikasi penanganan data terlambat untuk estimasi gerakan bola dan gerakan teman, beserta koreksi waktu berdasarkan \textit{timestamp} data menghasilkan akurasi yang paling baik dibandingkan dengan algoritma lain yang diuji coba.
+
+	Kata kunci: Penapis Bayes, \textit{out of order measurement}, kontes robot sepak bola beroda
 
 \end{spacing}
 

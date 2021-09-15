@@ -1,17 +1,108 @@
 \chapter{STUDI LITERATUR}
 
-Bab ini memberikan pengetahuan prasyarat yang mendasari isi dari tugas akhir ini. Secara spesifik, bab ini membahas dasar teori probabilitas yang digunakan, aplikasinya dalam estimasi keadaan probabilistik, dan algoritma terkait; struktur dan cara kerja modul terkait pada perangkat lunak robot sepak bola tim Dagozilla; dan studi terkait yang sudah ada pada topik estimasi keadaan multiagen maupun estimasi keadaan dengan latensi data.
+Bab ini memberikan pengetahuan prasyarat yang mendasari isi dari tugas akhir ini. Secara spesifik, bab ini membahas ROS sebagai \textit{framework} yang digunakan; teknik pemodelan dalam robotika dan komunikasi; estimasi keadaan probabilistik berupa penapis Bayes, Kalman, dan partikel; dan studi terkait yang sudah ada pada topik estimasi keadaan multi agen maupun estimasi keadaan dengan latensi data.
 
-\section{Teori Probabilitas}
+\section{Robot Operating System}
+
+Robot Operating System atau yang disingkat sebagai ROS merupakan \textit{framework} atau \textit{meta-operating system} yang sering digunakan dalam pengembangan perangkat lunak dalam bidang robotika. ROS dikembangkan untuk memenuhi kebutuhan yang ditemui dalam mengembangkan robot layanan skala besar, dan menyediakan berbagai fungsionalitas yang berguna dalam konteks pengembangan robotika tersebut, seperti sistem komunikasi pertukaran pesan antar proses atau yang disebut \textit{node}, kontrol perangkat level rendah, abstraksi perangkat keras, manajemen \textit{package} dan berbagai kakas dan algoritma yang berguna dalam robotika.
+
+Berdasarkan \citet{quigley2009}, filosofi pengembangan ROS bisa dibagi menjadi beberapa poin, yaitu:
+\begin{enumerate}
+    \item \textit{Peer-to-peer}
+
+          Sistem yang dibangun menggunakan ROS terdiri dari beberapa \textit{node}, yang mungkin berada di beberapa komputer berbeda, yang terhubung dan berkomunikasi pada saat \textit{runtime} dalam suatu jaringan \textit{peer-to-peer}. Jenis jaringan ini dianggap lebih baik dibanding jenis topologi menggunakan
+
+    \item Multilingual
+
+          ROS menyediakan antarmuka dalam beberapa bahasa seperti C++, Python, Octave, dan LISP sehingga pengembang dalam ROS dapat memilih untuk menggunakan bahasa yang sesuai kebutuhan untuk masing-masing \textit{node}. Definisi pesan yang digunakan dalam pertukaran pesan menggunakan \textit{interface definition language} (\textit{IDL}) sederhana yang oleh ROS diterjemahkan menjadi definisi kelas dalam masing-masing bahasa pemrograman yang didukung.
+
+    \item Berbasis kakas
+
+          Fungsionalitas kakas pada ROS tersedia dalam paradigma mikrokernel dan disebar dalam berbagai modul-modul terpisah dan modul \textit{master} utama memiliki fungsionalitas sekecil mungkin agar program masih dapat berjalan. Dengan desentralisasi fungsionalitas ini, dianggap berkurangnya efisiensi program dapat dikompensasi dengan stabilitas dan kemudahan mengelola kompleksitas program.
+
+    \item Tipis
+
+          Seperti pada kakasnya, ROS menganjurkan pengembangan algoritma dan fungsionalitas lainnya pada suatu \textit{library} secara terpisah dengan ROS dengan memanfaatkan sistem \textit{build} berbasis CMake, dan hanya menggunakan ROS sebagai fungsionalitas tipis untuk mengatur konfigurasi dan menyalurkan data. Dengan seperti ini, modul yang dikembangkan lebih mudah untuk dites maupun digunakan ulang pada tempat lain.
+
+    \item Bebas dan sumber terbuka
+
+          \textit{Framework} ROS memiliki lisensi BSD sehingga pengembang dapat menggunakannya untuk proyek komersil dan non-komersil. ROS yang bersifat bebas dan sumber terbuka ini juga mendorong penggunanya untuk saling berkontribusi kepada ROS dan pengguna lainnya dalam bentuk bantuan \textit{debugging}, pengajuan fitur, dan kakas sumber terbuka lainnya.
+
+\end{enumerate}
+
+Pada praktisnya, pengembang ROS membangun program dalam struktur mikroservis dimana dibangun beberapa \textit{node} dengan tanggung jawabnya masing-masing yang saling berkomunikasi menggunakan \textit{message-passing}. Pertukaran pesan dilakukan di bawah suatu nama topik dan suatu jenis pesan, dimana suatu \textit{node} dapat mengirimkan pesan di bawah topik tersebut, dan semua \textit{node} yang mengikuti topik tersebut akan menerima dan memproses pesan tersebut dalam bentuk pemanggilan fungsi \textit{callback}. Selain pertukaran pesan, fitur ROS yang sering digunakan adalah antarmuka \textit{parameter server} untuk menyuplai parameter konfigurasi yang dibutuhkan oleh masing-masing \textit{node}, dan \textit{node}-\textit{node} utilitas seperti perekaman dan putar balik pesan, visualisasi data pesan, pembangkitan otomatis dokumentasi, dan lain sebagainya.
+
+\section{Pemodelan Robotika dan Komunikasi}
+
+\subsection{Pergerakan Bola dan Robot}
+
+Dalam pelacakan objek dinamis, hal yang penting untuk dilacak dari objek tersebut pada suatu waktu diantaranya adalah posisi, atau tempat objek itu berada, dan kecepatan, yang merupakan perubahan seketika dari posisi. Dalam kasus kontes robot beroda dimana objek seperti robot, dan bola berada pada bidang planar lapangan, posisi dan juga kecepatan dapat dimodelkan dengan vektor dua dimensi $(x, y)$ dalam suatu sistem koordinat yang sudah ditentukan sebelumnya yang diukur pada pusat massa objek. Vektor posisi dan kecepatan tersebut dapat dimanipulasi secara matematis di antara dapat dijumlahkan seperti saat menghitung perpindahan atau resultan kecepatan, ataupun dikalikan dengan skalar seperti dalam menghitung perpindahan dari kecepatan dan waktu.
+
+Untuk robot yang memiliki orientasi, digunakan istilah \textit{pose} untuk menandakan keadaan posisi dan orientasi dari suatu robot. Seperti yang dijelaskan dalam \citet{thrun2010}, dalam kasus dua dimensi, \textit{pose} memiliki dua komponen $(p, \theta)$ dimana komponen $v$ menyatakan perpindahan posisi dan $\theta$ menandakan perpindahan orientasi dari robot tersebut, terhadap suatu sistem koordinat. Perpindahan dari dua \textit{pose} dapat dianggap banyaknya translasi dan rotasi yang perlu dilakukan robot terhadap \textit{pose} pertama untuk mencapai \textit{pose} kedua. Karena arah perpindahan posisi yang dilakukan relatif terhadap orientasi dari robot, maka penjumlahan dari dua \textit{pose} harus mempertimbangkan perubahan orientasi tersebut, dalam bentuk perputaran arah translasi kedua sebesar rotasi pertama. Cara kerja aritmatika yang unik inilah yang membuat manipulasi \textit{pose} tidak bersifat komutatif, melainkan hanya asosiatif seperti pada konstruk matematis bernama grup.
+
+Perubahan seketika dari \textit{pose} disebut sebagai \textit{twist}, yang terdiri dari kecepatan dan kecepatan sudut dari robot tersebut. Seperti \textit{pose}, \textit{twist} memiliki dua komponen yang sama $(p, \theta)$. Akan tetapi, karena perubahan posisi dan orientasi pada \textit{twist} terjadi secara bersamaan, penjumlahan dua \textit{twist} hanyalah penjumlahan komponen biasa. \textit{Twist} juga dapat diintegrasi terhadap waktu untuk mendapatkan \textit{pose}, dimana \textit{twist} konstan $(p, \theta)$ yang diintegrasi terhadap waktu $d$ akan menjadi \textit{pose} dengan nilai
+\begin{align}
+    \left(\frac{v(i - i \text{cis}\, \theta d)}{\theta}, \theta d\right)
+\end{align}
+dimana vektor dua dimensi $(x, y)$ di sini bisa diinterpretasi sebagai bilangan kompleks $x + iy$, $\text{cis}\, \theta$ menyatakan $\cos \theta + i \sin \theta = (\cos \theta, \sin \theta)$ dan $i$ adalah $(0, 1)$ dengan perkalian vektor sebagai perkalian kompleks.
+
+\subsection{Metrik \textit{Error} Pergerakan Objek}
+
+Dalam analisis algoritma estimasi pergerakan objek, dibutuhkan suatu metrik untuk menghitung \textit{error} di antara nilai pergerakan estimasi dengan nilai pergerakan sesungguhnya. Pada posisi maupun kecepatan bola yang berupa vektor dua dimensi, secara natural dapat digunakan metrik \textit{error} berupa jarak antara vektor yang bernilai $\sqrt{x^2 + y^2}$ dalam satuan meter. Untuk metrik estimasi pergerakan bola secara utuh dapat menggunakan penggabungan dari jarak posisi dan jarak kecepatan, seperti dengan menggunakan \textit{root mean square} (\textit{RMS}) dari keduanya.
+
+Dalam menentukan metrik \textit{error} untuk estimasi pergerakan robot yang memiliki orientasi, dapat digunakan definisi jarak antara dua \textit{pose} dari \citet{bregier2018} dimana jarak antara \textit{pose} dari dua \textit{rigid body} didefinisikan sebagai
+\begin{align}
+    \sqrt{\frac{1}{M}\int |T_2(x)-T_1(x)|^2 dm}
+\end{align}
+dimana $S$ adalah massa objek dan $|T_2(x)-T_1(x)|$ adalah jarak dari titik pada objek yang koresponden pada kedua \textit{pose}. Dapat dilihat bahwa persamaan ini merupakan \textit{RMS} dari jarak antara semua titik yang ada pada objek tersebut.
+
+Karena objek robot hanya melakukan translasi dan rotasi di bidang dua dimensi, persamaan jarak tersebut dapat disederhanakan. Karena referensi koordinat dalam penentuan jarak tidak penting, tempatkan \textit{pose} pertama di \textit{origin} $(O, 0)$ dengan selisih \textit{pose} $(p, \theta)$, maka titik $x$ di \textit{pose} pertama akan berkorespon dengan titik $p + x \text{cis}\, \theta$. Maka diturunkan persamaan jarak menjadi
+\begin{align}
+     & \sqrt{\frac{1}{M}\int |p + x \text{cis}\, \theta - x|^2 dm} \\
+     & = \sqrt{|p|^2 + |\text{cis}\, \theta - 1|^2 I/M}
+\end{align}
+dengan mengekspansi ekspresi panjang kuadrat di dalam integral dan memperhatikan bahwa $\frac{1}{M}\int x dm$ sama dengan pusat massa objek yang bernilai $0$, dan $\int |x|^2 dm = I$ adalah momen inersia dari objek. Untuk objek robot dengan distribusi massa kurang lebih di antara kerucut dan silinder, $I/M$ bernilai di antara $0.3r^2$ sampai $0.5r^2$ dimana $r$ adalah jari-jari objek.
+
+\subsection{Distribusi Normal}
+
+Keluarga distribusi normal atau distribusi Gaussian adalah salah satu distribusi probabilistik yang sering dipelajari dimana dengan nilai rata-rata $\mu$ dan nilai variansi $\sigma^2$ memiliki fungsi densitas
+\begin{align}
+    p(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left\{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right\}
+\end{align}
+dengan kasus spesial dimana $\mu = 0$ dan $\sigma^2 = 1$ disebut juga distribusi normal standar.
+
+Distribusi normal banyak dipelajari karena beberapa alasan. Salah satu alasan adalah karena distribusi ini memiliki banyak properti yang membuatnya mudah dimanipulasi dan digunakan, diantaranya adalah fungsi distribusi penjumlahan variabel-variabel acak independen berdistribusi normal, maupun perkalian dan konvolusi fungsi normal juga merupakan fungsi normal. Alasan lainnya adalah diobservasi juga berbagai variabel acak di berbagai pengujian ilmiah yang ternyata memiliki distribusi yang hampir mirip dengan normal. Selain itu juga, terbukti bahwa berdasarkan Teorema Limit Pusat, rata-rata dari banyak variabel acak distribusi identik independen akan mendekati distribusi normal. \citep{degroot2012}
+
+Disebabkan oleh alasan-alasan tersebut, praktisnya distribusi normal banyak digunakan untuk memodelkan berbagai variabel acak di dunia nyata, seperti distribusi sampel dari populasi yang sangat besar maupun distribusi \textit{error} pada suatu pengukuran atau kontrol sering diasumsikan memiliki distribusi normal.
+
+Distribusi normal memiliki generalisasi ke dalam vektor acak yaitu kumpulan variabel acak yang direpresentasikan dalam bentuk vektor atau disebut juga distribusi normal multivariat. Dengan parameter vektor rata-rata $\mu$ dan matriks kovarian $\Sigma$ yang bersifat simetrik dan positif semidefinit, didefinisikan fungsi densitas
+\begin{align}
+    p(x) = det(2 \pi \Sigma)^{-\frac{1}{2}} \exp\left\{-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu)\right\}
+\end{align}
+dimana masing-masing komponen $X_i$ sendiri memiliki distribusi normal dengan rata-rata $\mu_i$ dan kovarian antara $X_i, X_j$ sama dengan $\Sigma_{i,j}$.
+
+\subsection{Pemodelan \textit{Error} Sensor}
+
+Beberapa sensor yang digunakan dalam kontes robot sepak bola beroda diantaranya adalah sensor odometri pada roda yang digunakan untuk mengukur perpindahan dari robot, \textit{IMU} untuk mengukur orientasi dari robot, dan kamera yang dapat mempersepsi posisi relatif dari berbagai jenis objek, seperti \textit{landmark} di sekitar lapangan, bola, dan robot lainnya.
+
+Dengan mengasumsikan \textit{error} dari sensor memiliki distribusi normal independen, maka variansi dari \textit{error} berkembang secara linear terhadap banyak \textit{error} atau data yang terakumulasi. Oleh karena itu, selain pada bacaan absolut seperti orientasi, \textit{error} dari bacaan seperti odometri memiliki distribusi normal dengan variansi senilai suatu konstanta dikali besar perpindahan sesungguhnya. Sedangkan \textit{error} dari bacaan kamera atau \textit{vision} memiliki variansi senilai suatu konstanta dikali jarak sesungguhnya dari objek tersebut.
+
+\subsection{Pemodelan Latensi Komunikasi}
+
+Keadaan latensi komunikasi dalam jaringan \textit{wireless} maupun Internet sering dimodelkan sebagai hidden Markov model (HMM), dimana jaringan dimodelkan memiliki suatu \textit{state} keadaan yang tidak dapat diobservasi secara langsung dan berubah-ubah seiring waktu yang mempengaruhi besarnya latensi dan peluang \textit{packet loss} pada saat itu. \citet{rossi2006} menunjukkan bahwa latensi dan kemungkinan \textit{packet loss} dapat dimodelkan menggunakan HMM dengan dua sampai empat \textit{hidden state}. Selain peluang \textit{packet loss}, masing-masing \textit{state} tersebut memiliki parameter latensi komunikasi yang dimodelkan sebagai distribusi \textit{shifted gamma}, yang merupakan distribusi gamma biasa ditambah suatu nilai minimum.
+
+\section{Estimasi Keadaan Probabilistik}
+
+Menurut \citet{thrun2010}, penggunaan model probabilistik dalam mengestimasi \textit{world state} seiring waktu menjadi lebih populer dibandingkan dengan penggunaan model perhitungan yang deterministik. Dengan memodelkan \textit{world state} yang diketahui menjadi suatu distribusi peluang, hasil pengukuran \textit{world state} menjadi lebih tahan terhadap efek \textit{error} pada data pengukuran.
 
 \subsection{Teorema Bayes}
-Analog dengan definisi yang ada pada probabilitas kejadian, didefinisikan juga peluang kondisional
+Analog dengan definisi yang ada pada probabilitas kejadian, didefinisikan peluang kondisional
 \begin{align}
     p(x \,|\, y) = Pr(X = x \,|\, Y = y) = \frac{p(x, y)}{p(y)}
 \end{align}
 yang digunakan untuk memodelkan peluang nilai $x$ terjadi apabila nilai $y$ terjadi. Dua variabel acak $X$ dan $Y$ disebut independen apabila untuk semua kemungkinan $x$ dan $y$ berlaku
 \begin{align}
-    p(x, y) = p(x) p(y) \quad\textit{atau}\quad p(x \,|\, y) = p(x)
+    p(x, y) = p(x) p(y) \quad\text{atau}\quad p(x \,|\, y) = p(x)
 \end{align}
 
 Terkait peluang kondisional, Teorema Bayes menyatakan bahwa
@@ -22,60 +113,38 @@ dimana $\eta = p(y)^{-1}$ merupakan suatu nilai yang konstan untuk semua kemungk
 
 Teorema Bayes sangat berguna untuk memperbarui kepercayaan terhadap distribusi peluang $x$ setelah mengetahui terjadinya $y$ apabila diketahui peluang terjadinya $y$ dapat ditentukan untuk setiap kemungkinan $x$.
 
-\subsection{Distribusi Gaussian}
-
-Salah satu distribusi yang penting dan banyak dipelajari adalah keluarga distribusi Gaussian atau distribusi normal dimana dengan nilai rata-rata $\mu$ dan nilai variansi $\sigma^2$ memiliki fungsi densitas
-\begin{align}
-    p(x) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left\{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right\}
-\end{align}
-dengan kasus spesial dimana $\mu = 0$ dan $\sigma^2 = 1$ disebut juga distribusi normal standar.
-
-Distribusi Gaussian banyak dipelajari karena beberapa alasan. Salah satu alasan adalah karena distribusi ini memiliki banyak properti yang membuatnya mudah dimanipulasi dan digunakan, diantaranya adalah fungsi distribusi penjumlahan variabel-variabel acak independen berdistribusi Gaussian, maupun perkalian dan konvolusi fungsi Gaussian juga merupakan fungsi Gaussian. Alasan lainnya adalah diobservasi juga berbagai variabel acak di berbagai pengujian ilmiah yang ternyata memiliki distribusi yang hampir mirip dengan Gaussian. Selain itu juga, terbukti bahwa berdasarkan Teorema Limit Pusat, rata-rata dari banyak variabel acak distribusi identik independen akan mendekati distribusi Gaussian. \citep{degroot2012}
-
-Disebabkan oleh alasan-alasan tersebut, praktisnya distibusi Gaussian banyak digunakan untuk memodelkan berbagai variabel acak di dunia nyata, seperti distribusi sampel dari populasi yang sangat besar maupun distribusi \textit{error}pada suatu pengukuran atau kontrol sering diasumsikan memiliki distribusi Gaussian.
-
-Distribusi Gaussian memiliki generalisasi ke dalam vektor acak yaitu kumpulan variabel acak yang direpresentasikan dalam bentuk vektor. Dengan parameter vektor rata-rata $\mu$ dan matriks kovarian $\Sigma$ yang bersifat simetrik dan positif semidefinit, didefinisikan fungsi densitas
-\begin{align}
-    p(x) = det(2 \pi \Sigma)^{-\frac{1}{2}} \exp\left\{-\frac{1}{2}(x-\mu)^T \Sigma^{-1} (x-\mu)\right\}
-\end{align}
-dimana masing-masing komponen $X_i$ sendiri memiliki distribusi Gaussian dengan rata-rata $\mu_i$ dan kovarian antara $X_i, X_j$ sama dengan $\Sigma_{i,j}$.
-
-\section{Estimasi Keadaan Probabilistik}
-
-Perangkat lunak di robot atau sistem lainnya yang membaca \textit{world state} nyata menggunakan sensor, dan mungkin berinteraksi dengannya menggunakan aktuator, mempunyai kebutuhan untuk menentukan keadaan tersebut dari bacaan sensor. Secara umum, digunakan model matematika yang bertujuan untuk mentranslasi data pengukuran menjadi model \textit{world state}. Seiring berjalannya waktu, penggunaan estimasi \textit{world state} menggunakan model probabilistik menjadi lebih populer dibandingkan model perhitungan yang deterministik. Dengan memodelkan \textit{world state} yang diketahui menjadi suatu distribusi peluang, hasil pengukuran \textit{world state} menjadi lebih tahan terhadap efek \textit{error}pada data pengukuran. \citep{thrun2010}
-
 \subsection{Pemodelan Keadaan}
 
-Dalam model probabilistik, \textit{world state} disimbolkan sebagai suatu vektor acak $X$, dimana $x_t$ menandakan \textit{world state} pada waktu ke-$t$. Vektor acak ini mengandung berbagai variabel acak misalnya posisi dan orientasi sesungguhnya dari robot maupun objek lain pada suatu waktu.
+Dalam model probabilistik, \textit{world state} disimbolkan sebagai suatu vektor acak $X$, dimana $x_t$ menandakan \textit{world state} pada waktu ke-$t$. Vektor acak ini mengandung berbagai variabel acak seperti posisi dan orientasi sesungguhnya dari robot maupun objek lain pada suatu waktu.
 
-Sistem melakukan pengukuran terhadap dunia yang disimbolkan sebagai vektor acak $Z$ dan instansiasinya $z_t$ yang merupakan pengukuran dari dunia nyata pada waktu ke-$t$. Sedangkan apabila sistem melakukan interaksi umpan balik terhadap dunia nyata menggunakan suatu aktuator yang dikontrol oleh sistem, maka perintah interaksi tersebut disimbolkan sebagai vektor acak $U$ dan $u_t$ yang merupakan kontrol interaksi saat sistem sedang melakukan transisi dari $x_{t-1}$ ke $x_t$.
+\begin{figure}[h]
+    \centering
+    \medskip
+    \includegraphics[width=0.8\textwidth]{resources/hidden-markov-model.png}
+    \caption{Hubungan $X, U, Z$ \citep{thrun2010}}
+    \label{fig:hidden-markov-model}
+    \bigskip
+\end{figure}
 
-Perhatian dari estimasi keadaan probabilistik adalah mengestimasi nilai dari $x_t$ diberikan nilai $z$ dan $u$ yang terjadi sebelumnya. Dalam persamaan matematika, hendak dihitung
+Seiring perubahannya terhadap waktu, informasi berkaitan dengan perubahan \textit{world state} $x_{t-1}$ ke $x_t$ yang tersedia disebut sebagai data kontrol dan disimbolkan sebagai $z_t$. Contoh dari data kontrol misalnya perintah kecepatan pada roda robot ataupun bacaan perpindahan robot dari sensor odometri. Sedangkan informasi berkaitan keadaan \textit{world state} $x_t$ pada suatu waktu disebut sebagai data pengukuran dan disimbolkan sebagai $u_t$, seperti bacaan kompas atau persepsi \textit{landmark}. $Z$ dan $U$ yang sebenarnya merupakan variabel acak juga memiliki hubungan dengan $X$ seperti yang digambarkan pada \ref{fig:hidden-markov-model}.
+
+Perhatian dari estimasi keadaan probabilistik adalah mengestimasi nilai dari $x_t$ diberikan informasi $z$ dan $u$ yang terjadi sebelumnya. Dalam persamaan matematika, hendak dihitung
 \begin{align}
     bel(x_t) = p(x_t \,|\, z_{1:t}, u_{1:t}) \,,
 \end{align}
-atau distribusi peluang alternatif dimana diprediksi nilai dari $x_t$ sebelum mendapat hasil pengukurannya $z_t$,
+. Adapun definisi distribusi lainnya dimana diprediksi nilai dari $x_t$ sebelum mendapat hasil pengukurannya $z_t$,
 \begin{align}
     \overline{bel}(x_t) = p(x_t \,|\, z_{1:t-1}, u_{1:t}) \,.
 \end{align}
 
-Mengasumsikan nilai $X$ mengandung semua \textit{world state} yang relevan terhadap sistem pada waktu sekarang, maka tidak ada informasi tambahan yang bisa diberikan oleh pengukuran $z_t$ maupun keadaan sebelumnya $x_{t-k}$ terhadap keadaan berikutnya $x_{t+1}$ di luar apa yang terkandung pada $x_t$. Oleh karena itu dalam pembangkitan nilai $x_t$ dan $z_t$, dua distribusi peluang yang penting diperhatikan adalah peluang transisi keadaan
+Mengasumsikan nilai $X$ mengandung semua \textit{world state} yang relevan terhadap sistem pada waktu sekarang, maka tidak ada informasi tambahan yang bisa diberikan oleh pengukuran $z_t$ maupun keadaan sebelumnya $x_{t-k}$ terhadap keadaan berikutnya $x_{t+1}$ di luar apa yang terkandung pada $x_t$. Observasi ini disebut sebagai asumsi Markov. Oleh karena itu dalam pembangkitan nilai $x_t$ dan $z_t$, dua distribusi peluang yang penting diperhatikan adalah model peluang transisi keadaan atau \textit{motion model}
 \begin{align}
     p(x_t \,|\, x_{0:t-1}, z_{1:t-1}, u_{1:t}) = p(x_t \,|\, x_{t-1}, u_t)
 \end{align}
-dan peluang pengukuran
+dan model peluang pengukuran atau \textit{measurement model}
 \begin{align}
     p(z_t \,|\, x_{0:t}, z_{1:t-1}, u_{1:t}) = p(z_t \,|\, x_t)
 \end{align}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{resources/hidden-markov-model.png}
-    \caption{Hubungan $X, U, Z$}
-    \label{fig:hidden-markov-model}
-\end{figure}
-
-Hubungan ini digambarkan pada gambar \ref{fig:hidden-markov-model}. Peluang yang hanya saling berpengaruh antar tahapan waktu yang berdekatan disebut juga \textit{hidden Markov model} atau \textit{dynamic Bayes network}.
 
 \subsection{Penapis Bayes}
 
@@ -93,25 +162,25 @@ Hubungan ini digambarkan pada gambar \ref{fig:hidden-markov-model}. Peluang yang
     \end{algorithmic}
 \end{algorithm}
 
-Perhatikan bahwa perubahan nilai dari $\overline{bel}(x_{t-1})$ ke $bel(x_t)$ dapat ditentukan dari peluang transisi keadaan $p(x_t \,|\, x_{t-1}, u_t)$, dan perubahan nilai dari $bel(x_t)$ ke $\overline{bel}(x_t)$ dapat ditentukan dari peluang pengukuran $p(z_t \,|\, x_t)$ menggunakan Teorema Bayes. Memanfaatkan fakta tersebut, dirumuskan algoritma penapis Bayes atau \textit{Bayes filter algorithm} pada algoritma \ref{alg:bayes-filter}. Baris tiga menunjukkan perhitungan nilai $bel(x_t)$ sebagai ekspansi dari penjumlahan nilai $p(x_t, x_{t-1})$ saat diketahui $u_t$ untuk semua kemungkinan $x_{t-1}$, spesifik untuk kasus kontinu. Tahap ini sering disebut tahap prediksi. Baris empat memanfaatkan teorema Bayes untuk mendapatkan distribusi $x_t$ setelah mendapatkan informasi dari $z_t$. Tahap ini sering disebut tahap pembaruan pengukuran.
+Integrasi informasi $z$ atau perubahan distribusi dari $bel(x_{t-1})$ ke $\overline{bel}(x_t)$ dapat ditentukan dari model transisi $p(x_t \,|\, x_{t-1}, u_t)$. Sedangkan integrasi informasi $u$ atau perubahan distribusi dari $\overline{bel}(x_t)$ ke $bel(x_t)$ dapat ditentukan dari model pengukuran $p(z_t \,|\, x_t)$ menggunakan Teorema Bayes. Memanfaatkan fakta tersebut, dirumuskan algoritma penapis Bayes atau Bayes filter algorithm pada algoritma \ref{alg:bayes-filter}. Baris tiga menunjukkan perhitungan nilai $bel(x_t)$ sebagai ekspansi dari penjumlahan nilai $p(x_t, x_{t-1})$ saat diketahui $u_t$ untuk semua kemungkinan $x_{t-1}$, spesifik untuk kasus kontinu. Tahap ini sering disebut tahap prediksi. Baris empat memanfaatkan teorema Bayes untuk mendapatkan distribusi $x_t$ setelah mendapatkan informasi dari $z_t$. Tahap ini sering disebut tahap pembaruan pengukuran.
 
-Algoritma penapis digunakan untuk mengiterasi nilai dari $bel(x_t)$ seiring waktu, dan merupakan algoritma yang optimal mengasumsikan proses merupakan \textit{hidden Markov model}. Perhatikan bahwa algoritma ini mengharuskan pemodelan sendiri nilai dari peluang transisi keadaan, peluang pengukuran, dan distribusi awal $bel(x_0)$ yang akan digunakan.
+Algoritma penapis digunakan untuk mengiterasi nilai dari $bel(x_t)$ seiring waktu, dan merupakan algoritma yang optimal mengasumsikan proses merupakan hidden Markov model. Dapat dilihat bahwa algoritma ini mengharuskan pemodelan sendiri nilai dari model transisi, model pengukuran, dan distribusi awal $bel(x_0)$ yang akan digunakan.
 
-Selain itu, karena nilai dari $bel(x_t)$ merupakan distribusi peluang, dalam aplikasinya dibutuhkan pendekatan untuk memodelkan distribusi tersebut sehingga dapat dikomputasi oleh komputer. Pada praktisnya, distribusi peluang $bel(x_t)$ dimodelkan sebagai distribusi dengan jenis yang dapat diparameterasikan seperti pada penapis Kalman, atau distribusi tersebut didiskritkan seperti pada penapis histogram atau penapis partikel.
+Selain itu, karena nilai dari $bel(x_t)$ merupakan distribusi peluang yang umumnya berbentuk fungsi dari ruang kontinu ke bilangan riil yang tidak mungkin dimodelkan secara langsung dalam komputer, maka dalam aplikasinya dibutuhkan pendekatan untuk mendiskritkan distribusi tersebut. Pada praktisnya, distribusi peluang $bel(x_t)$ dimodelkan sebagai distribusi dengan jenis yang dapat diparameterasikan seperti pada penapis Kalman, atau distribusi tersebut didiskritkan seperti pada penapis histogram atau penapis partikel.
 
 \subsection{Penapis Kalman}
 
-Pada penapis Kalman atau \textit{Kalman Filter} (\textit{KF}), distribusi dari $bel(x_t)$ dan $\overline{bel}(x_t)$ diasumsikan memiliki distribusi Gaussian dengan parameter $\mu$ dan $\sigma^2$ yang dicari pada setiap iterasi algoritmanya. Agar penapis Bayes Gaussian bekerja, distribusi peluang transisi keadaan dan peluang pengukuran harus memiliki restriksi tambahan.
+Pada penapis Kalman atau \textit{Kalman Filter} (\textit{KF}), distribusi dari $bel(x_t)$ dan $\overline{bel}(x_t)$ diasumsikan memiliki distribusi normal dengan parameter $\mu$ dan $\sigma^2$ yang dicari pada setiap iterasi algoritmanya. Agar penapis Bayes normal bekerja, distribusi model transisi dan model pengukuran harus memiliki restriksi tambahan.
 
-Pada variasi penapis Kalman yang paling sederhana, direstriksi bahwa (1) vektor acak $x_t$ merupakan kombinasi linear dari $x_{t-1}, u_t,$ dan faktor \textit{error}$\epsilon_t$
+Pada variasi penapis Kalman yang paling sederhana, direstriksi bahwa (1) vektor acak $x_t$ merupakan kombinasi linear dari $x_{t-1}, u_t,$ dan faktor \textit{error} $\epsilon_t$
 \begin{align}
     x_t = A_t x_{t-1} + B_t u_t + \epsilon_t \,
 \end{align}
-untuk $x_t$ berdimensi $n$, $u_t$ berdimensi $m$, $A_t$ matriks berdimensi $n \times n$, dan $B_t$ berdimensi $n \times m$, dan $\epsilon_t$ vektor acak Gaussian dengan rata-rata nol dan kovariansi $R_t$; (2) $z_t$ merupakan kombinasi linear dari $x_t$ dan faktor \textit{error}$\delta_t$
+untuk $x_t$ berdimensi $n$, $u_t$ berdimensi $m$, $A_t$ matriks berdimensi $n \times n$, dan $B_t$ berdimensi $n \times m$, dan $\epsilon_t$ vektor acak normal dengan rata-rata nol dan kovariansi $R_t$; (2) $z_t$ merupakan kombinasi linear dari $x_t$ dan faktor \textit{error} $\delta_t$
 \begin{align}
     z_t = C_t x_t + \delta_t
 \end{align}
-untuk $z_t$ berdimensi $k$, $C_t$ berdimensi $k \times n$, dan $\delta_t$ vektor acak Gaussian dengan rata-rata nol dan kovariansi $Q_t$; dan (3) distribusi awal $bel(x_0)$ memiliki distribusi Gaussian. Ketiga asumsi ini menjamin bahwa distribusi $bel(x_t)$ merupakan distribusi Gaussian untuk semua waktu $t$ yang akan datang.
+untuk $z_t$ berdimensi $k$, $C_t$ berdimensi $k \times n$, dan $\delta_t$ vektor acak normal dengan rata-rata nol dan kovariansi $Q_t$; dan (3) distribusi awal $bel(x_0)$ memiliki distribusi normal. Ketiga asumsi ini menjamin bahwa distribusi $bel(x_t)$ merupakan distribusi normal untuk semua waktu $t$ yang akan datang.
 
 \begin{algorithm}
     \caption{Penapis Kalman}
@@ -128,45 +197,20 @@ untuk $z_t$ berdimensi $k$, $C_t$ berdimensi $k \times n$, dan $\delta_t$ vektor
     \end{algorithmic}
 \end{algorithm}
 
-Berdasarkan hubungan di atas, algoritma penapis Kalman menghitung nilai dari parameter rata-rata $\mu_t$ dan kovariansi $\Sigma_t$ dari distribusi Gaussian $bel(x_t)$. Sehingga dapat diturunkan algoritma penapis Kalman seperti pada algoritma \ref{alg:kalman-filter}.
+Berdasarkan hubungan di atas, algoritma penapis Kalman menghitung nilai dari parameter rata-rata $\mu_t$ dan kovariansi $\Sigma_t$ dari distribusi normal $bel(x_t)$. Sehingga dapat diturunkan algoritma penapis Kalman seperti pada algoritma \ref{alg:kalman-filter}.
 
-Disebabkan restriksi linearitas pada peluang transisi keadaan dan peluang pengukuran, algoritma penapis Kalman tidak dapat digunakan apabila restriksi linearitas tersebut tidak dipenuhi. Agar penapis Kalman dapat digunakan untuk kasus $x_t = g(u_t, x_{t-1}) + \epsilon_t$ dan $z_t = h(x_t) + \sigma_t$ dimana fungsi $g$ dan $h$ tidak linear, fungsi tersebut harus diaproksimasi terlebih dahulu agar menjadi linear.
+Disebabkan restriksi linearitas pada model transisi dan pengukuran, algoritma penapis Kalman tidak dapat digunakan apabila restriksi linearitas tersebut tidak dipenuhi. Agar penapis Kalman dapat digunakan untuk kasus $x_t = g(u_t, x_{t-1}) + \epsilon_t$ dan $z_t = h(x_t) + \sigma_t$ dimana fungsi $g$ dan $h$ tidak linear, fungsi tersebut harus diaproksimasi terlebih dahulu agar menjadi linear.
 
 Pada \textit{Extended Kalman Filter}, fungsi dilinearkan menggunakan turunan parsial dari fungsi $g$ dan $h$. Dengan menghitung $G_t = g'(u_t, \mu_{t-1})$ dan $H_t = h'(\overline{\mu}_t)$ dimana $g'$ merupakan turunan parsial $g$ terhadap $x_{t-1}$, didapatkan persamaan linear
 \begin{align}
-    g(u_t, x_{t-1}) \approx g(u_t, \mu_{t-1}) + G_t\, (x_{t-1} - \mu_{t-1}) \\
-    h(x_t) \approx h(\overline{\mu}_t) + H_t\, (x_t - \overline{\mu}_t)
+    g(u_t, x_{t-1}) & \approx g(u_t, \mu_{t-1}) + G_t\, (x_{t-1} - \mu_{t-1})      \\
+    h(x_t)          & \approx h(\overline{\mu}_t) + H_t\, (x_t - \overline{\mu}_t)
 \end{align}
 Nilai $A$ dan $C$ pada penapis Kalman dapat digantikan dengan nilai $G$ dan $H$.
 
 Pada \textit{Unscented Kalman Filter}, fungsi dilinearkan dengan mengambil sampel nilai pada fungsi $g$ dan $h$, lalu membuat persamaan linear dengan melakukan regresi pada nilai masukan secara umum. Sampel diambil di rata-rata $\mu$ dan dua titik di sekelilingnya untuk setiap dimensi yang ada.
 
-\subsection{Penapis Histogram}
-
-\begin{algorithm}
-    \caption{Penapis Bayes Diskrit}
-    \label{alg:discrete-bayes-filter}
-    \begin{algorithmic}[1]
-        \Function{discrete\_bayes\_filter}{$\{p_{k, t-1}\}, u_t, z_t$}
-        \ForAll{$k$}
-        \State $\overline{p}_{k, t} = \sum_i p(X_t = x_k \,|\, u_t, X_{t-1} = x_i)\, p_{i, t-1}$
-        \State $p_{k, t} = \eta\, p(z_t \,|\, X_t = x_k)\, \overline{p}_{k, t}$ \Comment{dinormalisasi untuk semua $k$}
-        \EndFor
-        \State \Return $\{p_{k, t}\}$
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
-
-Pada penapis histogram, kemungkinan nilai dari $x_t$ terbatas dan dibagi-bagi menjadi sebanyak terbatas daerah, misalnya kemungkinan posisi dari robot pada lapangan berdimensi $9 \times 6$ meter persegi dapat dibagi menjadi $1350$ daerah berbentuk persegi berukuran $20 \times 20$ sentimeter persegi dalam suatu grid. Pada algoritma ini, $bel(x_t)$ direpresentasikan sebagai suatu tabel yang menyimpan peluang nilai berada dalam masing-masing daerah yang ada. Algoritma ini pun relatif lebih sederhana karena hanya perlu mendiskritkan perhitungan pada filter Bayes.
-
-Algoritma filter Bayes diskrit ada di algoritma \ref{alg:discrete-bayes-filter}. Apabila fungsi peluang transisi keadaan atau peluang pengukuran yang dimiliki bersifat kontinu, dapat diaproksimasi menjadi diskrit seperti
-\begin{align}
-    p(\mathbf{x}_{k, t} \,|\, u_t, \mathbf{x}_{i, t-1}) \approx |\mathbf{x}_{k, t}|\, p(\hat{x}_{k, t} \,|\, u_t, \hat{x}_{i, t-1}) \\
-    p(z_t \,|\, \mathbf{x}_{k, t}) \approx p(z_t \,|\, \hat{x}_{k, t})
-\end{align}
-dimana $\hat{x}_{k, t}$ adalah representasi dari daerah $\mathbf{x}_{k, t}$ seperti titik tengahnya, dan $|\mathbf{x}_{k, t}|$ adalah luas daerahnya
-
-Teknik histogram ini berkaitan erat dengan grid okupansi dimana masing-masing daerah di grid tersebut diisi dengan tingkat kepercayaan suatu nilai berada dalam daerah tersebut, walau berbeda dengan histogram peluang dimana jumlah dari nilai semua grid haruslah bernilai satu. Aplikasi dari teknik ini dalam permasalahan lokalisasi robot kerap disebut dengan \textit{Markov localization}.
+Selain \textit{EKF} dan \textit{UKF}, karena popularitasnya, sudah banyak modifikasi dari penapis Kalman lainnya seperti \textit{Cubature Kalman Filter} atau \textit{Rao-Blackwellised Unscented Kalman Filter}.
 
 \subsection{Penapis Partikel}
 
@@ -192,25 +236,29 @@ Pada penapis partikel, distribusi peluang nilai dari $bel(x_t)$ direpresentasika
     \end{algorithmic}
 \end{algorithm}
 
-Algoritma penapis partikel digambarkan di algoritma \ref{alg:particle-filter}. Baris empat merupakan tahap prediksi dimana untuk setiap partikel sebelumnya dibangkitkan partikel sekarang menggunakan nilai kontrol. Partikel tersebut disimpan di himpunan $\overline{\chi}_t$ beserta evaluasi peluangnya berdasarkan pengukuran. Agar suatu partikel dengan peluang yang lebih besar memiliki lebih banyak representasi dalam himpunan $\chi_t$, dilakukan sampling ulang terhadap $x_t$ dengan peluang sebanding dengan hasil evaluasinya, pada baris delapan sampai sebelas.
+Algoritma penapis partikel digambarkan di algoritma \ref{alg:particle-filter}. Baris empat merupakan tahap prediksi dimana untuk setiap partikel sebelumnya dibangkitkan partikel sekarang menggunakan nilai kontrol. Partikel tersebut disimpan di himpunan $\overline{\chi}_t$ beserta evaluasi peluangnya  atau \textit{weight}nya berdasarkan pengukuran dan model pengukuran yang ada. Agar suatu partikel dengan peluang yang lebih besar memiliki lebih banyak representasi dalam himpunan $\chi_t$, dilakukan sampling ulang terhadap $x_t$ dengan peluang sebanding dengan hasil evaluasinya, pada baris delapan sampai sebelas.
 
-Secara umum, penapis partikel ini merupakan pilihan paling populer dalam melakukan estimasi terhadap keadaan nonGaussian, karena komputasinya yang mengandalkan sampling relatif lebih mudah dan tingkat akurasi terhadap kinerja algoritma dapat diatur dengan mudah melalui banyak partikel yang digunakan. Ada beberapa kondisi yang mengakibatkan ketidakakuratan pada algoritma ini, seperti saat terjadi konvergensi partikel di nilai yang salah, sehingga peningkatan pada algoritma ini diantaranya adalah dengan menambahkan faktor \textit{error}tambahan pada tahap prediksi dan/atau memasukkan partikel baru di luar $\overline{\chi}_t$ ke dalam $\chi_t$.
+Secara umum, penapis partikel ini merupakan pilihan paling populer dalam melakukan estimasi terhadap keadaan distribusi non-normal, karena komputasinya yang mengandalkan sampling relatif lebih mudah dan tingkat akurasi terhadap kinerja algoritma dapat diatur dengan mudah melalui banyak partikel yang digunakan. Ada beberapa kondisi yang mengakibatkan ketidakakuratan pada algoritma ini, seperti saat terjadi konvergensi partikel di nilai yang salah, sehingga peningkatan pada algoritma ini diantaranya adalah dengan menambahkan faktor \textit{error}tambahan pada tahap prediksi dan/atau memasukkan partikel baru di luar $\overline{\chi}_t$ ke dalam $\chi_t$.
 
-Penggunaan populer dari algoritma ini adalah pada algoritma \textit{Monte Carlo localization} (\textit{MCL}) dimana penapis partikel digunakan untuk kasus lokalisasi robot menggunakan data kontrol dari kontrol kecepatan atau data perpindahan dari sensor dan data pengukuran dari sensor peraba jarak atau kamera. Algoritma \textit{Augmented Monte Carlo localization} (\textit{AMCL}) merupakan modifikasi algoritma \textit{MCL} biasa yang ditambahkan pemasukkan partikel baru apabila hasil evaluasi partikel-partikel yang ada sekarang lebih buruk dari sebelumnya.
+Penggunaan populer dari algoritma ini adalah pada algoritma \textit{Monte Carlo localization} (\textit{MCL}) dimana penapis partikel digunakan untuk kasus lokalisasi robot menggunakan data kontrol dari kontrol kecepatan atau data perpindahan dari sensor dan data pengukuran dari sensor peraba jarak atau kamera. Algoritma \textit{Augmented Monte Carlo localization} (\textit{AMCL}) merupakan modifikasi algoritma \textit{MCL} biasa yang ditambahkan pemasukkan partikel baru atau \textit{resampling} apabila hasil evaluasi partikel-partikel yang ada sekarang lebih buruk dari sebelumnya. \textit{Resampling} ini dilakukan apabila dideteksi bahwa hasil pemberatan atau peluang partikel rata-rata lebih buruk dari sebelumnya, sehingga \textit{resampling} dilakukan untuk memastikan distribusi partikel tidak menjadi konvergen sehingga masih bisa beradaptasi saat kualitas bacaan pengukuran membaik. Banyaknya partikel yang di\textit{resample} pada setiap iterasinya bergantung pada rata-rata hasil evaluasi \textit{weight}nya. Digunakan dua variabel $w_{\text{fast}}$ dan $w_{\text{slow}}$ yang mengikuti rata-rata \textit{weight} tersebut lintas iterasinya dengan \textit{rate} yang berbeda dimana rasio $w_{\text{fast}} / w_{\text{slow}}$ digunakan sebagai peluang suatu partikel tidak di\textit{resample}.
+
+\subsection{Penanganan \textit{Out of Order Measurement}}
+
+Latensi komunikasi dapat mengakibatkan diterimanya informasi dari teman yang terlambat atau \textit{out of order} dibandingkan informasi dari teman yang sebelumnya ataupun informasi dari sensor robot sendiri. Penapis Bayes pada dasarnya tidak dapat menangani data yang terlambat tersebut, karena menyalahi asumsi Markov dimana dibutuhkan informasi keadaan \textit{world state} di masa lampau untuk dapat mengintegrasi informasi tersebut. Terdapat beberapa studi terhadap modifikasi penapis Bayes dalam bentuk penapis Kalman ataupun penapis partikel agar dapat mengintegrasi data yang terlambat, seperti mengestimasi distribusi \textit{world state} lampau berdasarkan \textit{world state} yang ada. Akan tetapi, pendekatan yang lebih sederhana dimana distribusi \textit{world state} lampau disimpan dan digunakan untuk melakukan estimasi ulang dengan menyisipkan informasi yang baru didapat dapat digunakan apabila tidak ada batasan seperti konstrain memori.
 
 \section{Studi Terkait}
 
 Secara umum, teknik probabilistik seperti penapis Kalman maupun penapis partikel telah banyak diimplementasi dalam kasus pelacakan objek oleh satu agen dan telah menunjukkan tingkat keberhasilan yang cukup baik. Sedangkan dalam kasus pelacakan objek oleh banyak agen, terdapat banyak studi yang mencetuskan beragam ide yang sangat bervariasi dalam berbagai konteks. Dalam konteks kontes robot sepak bola sendiri, sudah terdapat beberapa studi yang mencoba menggabungkan data pelacakan objek maupun lokalisasi.
 
-Robot-robot \citet{stroupe2001} melacak posisi bola menggunakan penapis Kalman dan distribusi hasilnya disebarkan ke robot lainnya, dimana distribusi Gaussian dari semua robot akan digabungkan oleh masing-masing robot untuk menghasilkan suatu distribusi Gaussian akhir. Asumsi dasar dari makalah ini adalah \textit{error}nya bersifat normal independen, lokalisasi robot sempurna, dan waktu pengukuran bersamaan. Sedangkan \citet{pinheiro2004} mengalikan langsung distribusi Gaussian masing-masing robot untuk mendapatkan fungsi objektif lokasi bola. Data digabungkan apabila hasil perkalian memiliki puncak probabilitas yang unik, dimana dibuat suatu rumus untuk menentukan apakah ini terjadi.
+Robot-robot \citet{stroupe2001} melacak posisi bola menggunakan penapis Kalman dan distribusi hasilnya disebarkan ke robot lainnya, dimana distribusi normal dari semua robot akan digabungkan oleh masing-masing robot untuk menghasilkan suatu distribusi normal akhir. Asumsi dasar dari makalah ini adalah \textit{error}nya bersifat normal independen, lokalisasi robot sempurna, dan waktu pengukuran bersamaan. Sedangkan \citet{pinheiro2004} mengalikan langsung distribusi normal masing-masing robot untuk mendapatkan fungsi objektif lokasi bola. Data digabungkan apabila hasil perkalian memiliki puncak probabilitas yang unik, dimana dibuat suatu rumus untuk menentukan apakah ini terjadi.
 
 \citet{ferrein2005} membandingkan beberapa metode untuk menggabungkan observasi bola dari masing-masing robot, seperti merata-ratakan posisi pengamatan, menggunakan penapis Kalman menggunakan terhadap posisi bola menggunakan data yang didapat masing-masing robot, menggunakan penapis partikel, maupun menggunakan penapis histogram yang digabungkan ke estimasi global menggunakan penapis Kalman. Hasilnya adalah penapis Kalman sederhana memiliki tingkat akurasi dan kecepatan yang paling baik.
 
 Masing-masing robot \citet{pahliani2006} melakukan lokalisasi menggunakan \textit{Markov localization}, lalu tergantung dari posisi robot, robot-robot yang ada membentuk beberapa kelompok kecil untuk bertukar informasi. Data dari robot di kelompok yang sama dibagikan, lalu menggunakan data yang didapat dari kelompok lain, hasil lokalisasi dari masing-masing robot diperbaiki secara Bayes. Setelah lokalisasi, deteksi objek juga dilakukan menggunakan alur dan kelompok yang sama.
 
-\citet{santos2009} melacak bola menggunakan penapis partikel. Untuk mengefisiensikan pertukaran informasi antar robot, distribusi dalam bentuk partikel diubah dulu menjadi \textit{gaussian mixture model} yang terdiri dari beberapa distribusi Gauss menggunakan algoritma \textit{expectation maximization} yang bekerja mirip seperti algoritma \textit{K means}. Ada juga ukuran persetujuan informasi antar robot menggunakan \textit{covariance intersection} untuk menentukan apakah informasi baru diintegrasi dengan informasi robot sendiri atau tidak. \citet{ahmad2011} mengembangkan ide ini dengan membuat algoritma penggabungan distribusi dari masing-masing robot dimana dibangkitkan kumpulan partikel baru dengan melakukan \textit{sampling} dari distribusi-distribusi yang ada berdasarkan tingkat kepercayaan distribusi tersebut sebagai masukan dari penapis partikel.
+\citet{santos2009} melacak bola menggunakan penapis partikel. Untuk mengefisienkan pertukaran informasi antar robot, distribusi dalam bentuk partikel diubah dulu menjadi \textit{gaussian mixture model} yang terdiri dari beberapa distribusi Gauss menggunakan algoritma \textit{expectation maximization} yang bekerja mirip seperti algoritma \textit{K means}. Ada juga ukuran persetujuan informasi antar robot menggunakan \textit{covariance intersection} untuk menentukan apakah informasi baru diintegrasi dengan informasi robot sendiri atau tidak. \citet{ahmad2011} mengembangkan ide ini dengan membuat algoritma penggabungan distribusi dari masing-masing robot dimana dibangkitkan kumpulan partikel baru dengan melakukan \textit{sampling} dari distribusi-distribusi yang ada berdasarkan tingkat kepercayaan distribusi tersebut sebagai masukan dari penapis partikel.
 
-\citet{ahmad2013} mengumpulkan semua pengukuran posisi relatif semua robot terhadap robot lain, objek statis, maupun objek dinamis, dan mencari konfigurasi posisi semua objek yang meminimasi \textit{error} dari pengukuran-pengukuran yang ada menggunakan \textit{iterative local linearization} atau \textit{least square minimization}. Kelebihan teknik ini diantara adalah beban komputasinya linear terhadap banyak robot, akan tetapi setiap robot harus menunggu sampainya data pengukuran dari semua robot lain.
+\citet{ahmad2013} mengumpulkan semua pengukuran posisi relatif semua robot terhadap robot lain, objek statis, maupun objek dinamis, dan mencari konfigurasi posisi semua objek yang meminimasi \textit{error} dari pengukuran-pengukuran yang ada menggunakan \textit{iterative local linearization} atau \textit{least square minimization}. Kelebihan teknik ini di antara adalah beban komputasinya linear terhadap banyak robot, akan tetapi setiap robot harus menunggu sampainya data pengukuran dari semua robot lain.
 
 \citet{chang2016} menggunakan \textit{Extended Kalman Filter} untuk melacak sistem seluruh robot dan objek. \textit{Update} dilakukan untuk masing-masing robot, sedangkan pengukuran diintegrasi berdasarkan robot apa saja yang terlibat dalam pengukuran tersebut. Teknik \textit{multiple hypothesis tracking} digunakan untuk mengasosiasikan data pengukuran dengan posisi objek di hipotesis.
 

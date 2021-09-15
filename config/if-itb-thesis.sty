@@ -147,6 +147,7 @@ patent,unpublished,misc]
 
 % Hilangkan gap antar-bab di ToC
 \setlength{\cftbeforechapskip}{0pt}
+\addtolength{\cftfignumwidth}{15pt}
 
 % Tambah kata "BAB" sebelum nomor bab di daftar isi
 % TODO: still problematic when used with list of appendices (uncomment these 4 following lines to reproduce the problem)
@@ -228,8 +229,8 @@ tablename=Tabel]{caption}
 \renewcommand\thesubfigure{(\alph{subfigure})}
 
 % Counter untuk gambar dan tabel
-\renewcommand*{\thefigure}{\thechapter.\arabic{figure}}
-\renewcommand*{\thetable}{\thechapter.\arabic{table}}
+\renewcommand*{\thefigure}{\thechapter.\arabic{section}.\arabic{figure}}
+\renewcommand*{\thetable}{\thechapter.\arabic{section}.\arabic{table}}
 
 % Jarak spasi antara float dengan teks utama
 \captionsetup[figure]{belowskip=-1em}

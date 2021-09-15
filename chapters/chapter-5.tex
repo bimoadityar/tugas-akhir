@@ -1,7 +1,25 @@
 \chapter{PENUTUP}
 
-\section{Kesimpulan}
-\blindtext
+Bab ini memaparkan hasil-hasil simpulan yang dapat ditarik berdasarkan uji coba beserta saran yang dapat diambil untuk pengembangan-pengembangan berikutnya.
+
+\section{Simpulan}
+
+Berdasarkan hasil eksperimen yang diperoleh, didapatkan bahwa algoritma estimasi gerakan robot tim dan bola yang paling akurat adalah algoritma yang:
+\begin{enumerate}
+    \item Menggunakan algoritma AMCL berbasis \textit{pose} dan \textit{twist} untuk mengestimasi gerakan robot sendiri
+    \item Menggunakan algoritma penapis partikel dengan penanganan data terlambat untuk mengestimasi gerakan bola
+    \item Menggunakan algoritma penapis partikel dengan penanganan data terlambat untuk mengestimasi dan mengoreksi gerakan robot teman
+    \item Mengoreksi hasil estimasi berdasarkan selisih waktu sekarang dengan \textit{timestamp} data terakhir
+\end{enumerate}
+
+Konfigurasi-konfigurasi tersebut mempunyai kinerja yang lebih baik dibandingkan dengan alternatif seperti menggunakan AMCL berbasis \textit{pose} saja atau estimasi gerakan bola menggunakan penapis Kalman.
 
 \section{Saran}
-\blindtext
+
+Saran yang dapat diterapkan untuk pengembangan-pengembangan berikutnya diantaranya adalah:
+\begin{enumerate}
+    \item Memvalidasi hasil uji coba dengan percobaan langsung di lingkungan nyata dengan robot di lapangan atau menggunakan data yang diambil dari uji coba robot di lapangan
+    \item Melakukan koreksi posisi robot teman menggunakan persepsi \textit{vision} terhadap teman tersebut
+    \item Menyebarkan seluruh distribusi estimasi dibandingkan hanya estimasinya saja melalui komunikasi
+    \item Menerapkan berbagai variasi modifikasi penapis Kalman yang ada
+\end{enumerate}
